@@ -23,23 +23,38 @@ class ViewController: UIViewController {
     let digit = sender.currentTitle!
     //println("digit = \(digit)")
     //println("digit = \(digit!)")
+    
+
     if userIsInTheMiddleOfTypingANumber {
+      
+      println("In userIsInTheMiddleOfTypingANumber")
       if digit == "." {
         if self.display.text!.rangeOfString(".") == nil {
           self.display.text = self.display.text! + digit
         }
+      } else if digit == "π" {
+        enter()
+        self.display.text = "\(M_PI)"
+        enter()
       } else {
         self.display.text = self.display.text! + digit
       }
       
     } else {
       
+      userIsInTheMiddleOfTypingANumber = true
+      
       if digit == "." {
         self.display.text = "0."
+      } else if digit == "π" {
+        self.display.text = "\(M_PI)"
+        // userIsInTheMiddleOfTypingANumber will be modified to false in the enter()
+        enter()
       } else {
         self.display.text = digit
       }
-      userIsInTheMiddleOfTypingANumber = true
+    
+      
     }
   }
 

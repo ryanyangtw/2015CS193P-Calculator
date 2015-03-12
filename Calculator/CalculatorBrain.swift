@@ -59,6 +59,9 @@ class CalculatorBrain
     // knownOps["√"] = Op.UnaryOperation("√") { sqrt($0) }
     // knownOps["√"] = Op.UnaryOperation("√", sqrt)
     learnOp(Op.UnaryOperation("√", sqrt))
+    learnOp(Op.UnaryOperation("Sin", sin))
+    learnOp(Op.UnaryOperation("Cos", cos))
+    //learnOp(Op.UnaryOperation("π") { $0 * M_PI } )
     
   }
   
