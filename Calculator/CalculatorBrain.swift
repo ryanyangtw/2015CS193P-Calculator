@@ -180,4 +180,8 @@ class CalculatorBrain
     return evaluate()
   }
   
+  func displayHistory() -> String? {
+    return "\(self.opStack)"
+  }
+  
 }
