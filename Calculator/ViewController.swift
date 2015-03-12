@@ -24,9 +24,21 @@ class ViewController: UIViewController {
     //println("digit = \(digit)")
     //println("digit = \(digit!)")
     if userIsInTheMiddleOfTypingANumber {
-      self.display.text = self.display.text! + digit
+      if digit == "." {
+        if self.display.text!.rangeOfString(".") == nil {
+          self.display.text = self.display.text! + digit
+        }
+      } else {
+        self.display.text = self.display.text! + digit
+      }
+      
     } else {
-      self.display.text = digit
+      
+      if digit == "." {
+        self.display.text = "0."
+      } else {
+        self.display.text = digit
+      }
       userIsInTheMiddleOfTypingANumber = true
     }
   }
