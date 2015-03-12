@@ -14,6 +14,9 @@ class ViewController: UIViewController {
   
   var userIsInTheMiddleOfTypingANumber = false
   
+  // connact to model
+  var brain = CalculatorBrain()
+  
   
   @IBAction func appendDigit(sender: UIButton) {
     // digit is a optional that can be string
@@ -31,50 +34,32 @@ class ViewController: UIViewController {
   
   
   @IBAction func operate(sender: UIButton) {
-    let operation = sender.currentTitle!
     
     if userIsInTheMiddleOfTypingANumber {
       enter()
     }
     
-    switch operation {
-    // It shows different way to send the closure to anotehr methos
-    case "×": performOperation() {
-      (op1: Double, op2: Double) -> Double in
-        return op1 * op2
-    }
-    case "÷": performOperation() { (op1, op2) in return op2/op1 }
-    case "+": performOperation() { (op1, op2) in op1 + op2 }
-    case "−": performOperation { $1 - $0}
-    case "√": performOperation { sqrt($0) }
-    default : break
+    if let operation = sender.currentTitle {
+      if let result = brain.performOperation(operation) {
+        displayValue = result
+      } else {
+        // error
+        displayValue = 0
+      }
     }
     
-    
   }
-  
-  func performOperation(operation: (Double, Double) -> Double) {
-    if operandStack.count >= 2 {
-      displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
-      enter()
-    }
-  }
-  
-  func performOperation(operation: Double -> Double) {
-    if operandStack.count >= 1 {
-      displayValue = operation(operandStack.removeLast())
-      enter()
-    }
-  }
+
   
   
-  
-  
-  var operandStack = Array<Double>()
   @IBAction func enter() {
     userIsInTheMiddleOfTypingANumber = false
-    operandStack.append(displayValue)
-    println("operand = \(operandStack)")
+    if let result = brain.pushOperand(displayValue) {
+      displayValue = result
+    } else {
+      // error
+      displayValue = 0
+    }
   }
   
   // Computed property
