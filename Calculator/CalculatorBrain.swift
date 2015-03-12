@@ -94,12 +94,72 @@ class CalculatorBrain
     return (nil, ops)
   
   }
+
   
+  /*
+  private func evaluate(ops: [Op]) -> Double? {
+    if !ops.isEmpty {
+      var remainingOps = ops
+      let op = remainingOps.removeLast()
+      
+      switch op {
+      case .Operand(let operand):
+        return operand
+        
+      case .UnaryOperation(_, let operation):
+        let operandEvaluation = evaluate(remainingOps)
+        if let operand = operandEvaluation {
+          return (operation(operand))
+        }
+        
+        
+        
+      case .BinaryOperation(_, let operation):
+        
+        var splitPoint: Int? = nil
+        var breakPoint = false
+        for (index, item) in enumerate(remainingOps) {
+          println("index: \(index)")
+          switch item {
+          case .Operand(_):
+            splitPoint = index
+            breakPoint = true
+          default:
+            continue
+          }
+        
+          if breakPoint {
+            break
+          }
+        }
+        
+        if splitPoint != nil && splitPoint!+1 <= remainingOps.count-1{
+          let ops1 = Array(remainingOps[0...splitPoint!]) //as [CalculatorBrain.Op]
+          let ops2 = Array(remainingOps[(splitPoint!+1)...(remainingOps.count-1)]) //as [CalculatorBrain.Op]
+        
+        
+          if let operand1 = evaluate(ops1) {
+            if let operand2 = evaluate(ops2) {
+              return (operation(operand1, operand2))
+            }
+          }
+        } else {
+          return nil
+        }
+    
+      }
+     
+    }
+    
+    return nil
+  }
+  */
   
   func evaluate() -> Double? {
     let (result, remainder) = evaluate(opStack)
-    
+    //let result = evaluate(opStack)
     println("\(self.opStack) = \(result) with \(remainder) left over")
+    //println("\(self.opStack) = \(result) with")
     return result
   }
   
