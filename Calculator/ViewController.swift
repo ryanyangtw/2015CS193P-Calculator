@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
 
   @IBOutlet weak var display: UILabel! // = nil  // implicitly  unwrap optional
+  @IBOutlet weak var history: UILabel!
   
   var userIsInTheMiddleOfTypingANumber = false
   
@@ -23,11 +24,38 @@ class ViewController: UIViewController {
     let digit = sender.currentTitle!
     //println("digit = \(digit)")
     //println("digit = \(digit!)")
+    
+
     if userIsInTheMiddleOfTypingANumber {
-      self.display.text = self.display.text! + digit
+      
+      println("In userIsInTheMiddleOfTypingANumber")
+      if digit == "." {
+        if self.display.text!.rangeOfString(".") == nil {
+          self.display.text = self.display.text! + digit
+        }
+      } else if digit == "π" {
+        enter()
+        self.display.text = "\(M_PI)"
+        enter()
+      } else {
+        self.display.text = self.display.text! + digit
+      }
+      
     } else {
-      self.display.text = digit
+      
       userIsInTheMiddleOfTypingANumber = true
+      
+      if digit == "." {
+        self.display.text = "0."
+      } else if digit == "π" {
+        self.display.text = "\(M_PI)"
+        // userIsInTheMiddleOfTypingANumber will be modified to false in the enter()
+        enter()
+      } else {
+        self.display.text = digit
+      }
+    
+      
     }
   }
 
@@ -42,6 +70,7 @@ class ViewController: UIViewController {
     if let operation = sender.currentTitle {
       if let result = brain.performOperation(operation) {
         displayValue = result
+        updateHisroty()
       } else {
         // error
         displayValue = 0
@@ -56,6 +85,7 @@ class ViewController: UIViewController {
     userIsInTheMiddleOfTypingANumber = false
     if let result = brain.pushOperand(displayValue) {
       displayValue = result
+      updateHisroty()
     } else {
       // error
       displayValue = 0
@@ -72,6 +102,11 @@ class ViewController: UIViewController {
       self.display.text = "\(newValue)"
       userIsInTheMiddleOfTypingANumber = false
     }
+  }
+  
+  
+  func updateHisroty() {
+    self.history.text = self.brain.displayHistory()
   }
   
   
