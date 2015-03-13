@@ -168,7 +168,7 @@ class CalculatorBrain
   
   func pushOperand(operand: Double) -> Double? {
     
-    println("in pushoperand: \(operand)")
+    //println("in pushoperand: \(operand)")
     opStack.append(Op.Operand(operand))
     return evaluate()
   }
@@ -181,7 +181,17 @@ class CalculatorBrain
   }
   
   func displayHistory() -> String? {
-    return "\(self.opStack)"
+    
+    var str = ""
+    for item in self.opStack {
+      if "\(item)" == "3.14159265358979" {
+        str += "π "
+        continue
+      }
+      str += "\(item) "
+    }
+    
+    return str
   }
   
 }
