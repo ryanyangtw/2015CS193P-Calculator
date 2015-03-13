@@ -57,6 +57,11 @@ class ViewController: UIViewController {
   @IBAction func operate(sender: UIButton) {
     
     if userIsInTheMiddleOfTypingANumber {
+      if (sender.currentTitle == "±") {
+        //self.display.text = "-" + self.display.text!
+        signReverse()
+        return
+      }
       enter()
     }
     
@@ -114,6 +119,14 @@ class ViewController: UIViewController {
       self.history.text = self.history.text! + " ="
     } else {
       self.history.text = self.brain.displayHistory()
+    }
+  }
+  
+  func signReverse() {
+    if (self.display.text!.hasPrefix("-")) {
+      self.display.text = dropFirst(self.display.text!)
+    } else {
+      self.display.text = "-" + self.display.text!
     }
   }
   
