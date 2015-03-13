@@ -29,9 +29,15 @@ class ViewController: UIViewController {
     if userIsInTheMiddleOfTypingANumber {
       
       if (digit == ".") && (self.display.text!.rangeOfString(".") != nil) { return }
-      if (digit == "0") && (self.display.text == "0") { return }
-      if (digit != ".") && (self.display.text == "0") {
-        self.display.text = digit
+      if (digit == "0") && ((self.display.text == "0") || (display.text == "-0")) { return }
+      if (digit != ".") && ((self.display.text == "0") || (display.text == "-0")) {
+        
+        if (self.display.text == "0") {
+          self.display.text = digit
+        } else {
+          self.display.text = "-" + digit
+        }
+
       } else {
         self.display.text = display.text! + digit
       }
@@ -45,11 +51,9 @@ class ViewController: UIViewController {
       }
       
       userIsInTheMiddleOfTypingANumber = true
-    
-      
+      displayHistoryWithEqual(false)
+
     }
-    
-    displayEqual(false)
   }
 
   
@@ -59,7 +63,7 @@ class ViewController: UIViewController {
     if userIsInTheMiddleOfTypingANumber {
       if (sender.currentTitle == "±") {
         //self.display.text = "-" + self.display.text!
-        signReverse()
+        reverseSign()
         return
       }
       enter()
@@ -70,11 +74,11 @@ class ViewController: UIViewController {
         displayValue = result
       } else {
         // error
-        displayValue = 0
+        displayValue = nil
       }
     }
 
-    displayEqual(true)
+    //displayHistoryWithEqual(true)
   }
 
   
@@ -89,7 +93,7 @@ class ViewController: UIViewController {
       displayValue = nil
     }
     
-    displayEqual(true)
+    //displayHistoryWithEqual(true)
   }
   
   @IBAction func clear() {
@@ -101,20 +105,26 @@ class ViewController: UIViewController {
   
   @IBAction func undo() {
     
-    let str = self.display.text!
+    if userIsInTheMiddleOfTypingANumber {
+      
+      let displayText = self.display.text!
+      
+      if (countElements(displayText) > 1) {
+        if (countElements(displayText) == 2 && self.display.text?.hasPrefix("-") != nil) {
+          self.display.text = "-0"
+        } else {
+          // normal seneria
+          self.display.text = dropLast(displayText)
+        }
+      } else {
+        self.display.text = "0"
+      }
     
-    if (str == "0") {
-      return
-    } else if (countElements(str) == 1) {
-      self.display.text = "0"
-    } else {
-      self.display.text = dropLast(str)
-      //self.displayValue = NSNumberFormatter().numberFromString(dropLast(str))!.doubleValue
+    
     }
-    
   }
   
-  func displayEqual(shouldDisplay: Bool) {
+  func displayHistoryWithEqual(shouldDisplay: Bool) {
     if shouldDisplay {
       self.history.text = self.history.text! + " ="
     } else {
@@ -122,11 +132,12 @@ class ViewController: UIViewController {
     }
   }
   
-  func signReverse() {
-    if (self.display.text!.hasPrefix("-")) {
-      self.display.text = dropFirst(self.display.text!)
+  func reverseSign() {
+    let displayText = self.display.text!
+    if (displayText.hasPrefix("-")) {
+      self.display.text = dropFirst(displayText)
     } else {
-      self.display.text = "-" + self.display.text!
+      self.display.text = "-" + displayText
     }
   }
   
@@ -135,7 +146,13 @@ class ViewController: UIViewController {
   // Computed property
   var displayValue: Double? {
     get {
-      return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+      if let displayText = display.text {
+        if let displayNumber = NSNumberFormatter().numberFromString(displayText) {
+          return displayNumber.doubleValue
+        }
+      }
+      return nil
+      //return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
     }
     set {
       // newValue means set value
@@ -156,6 +173,11 @@ class ViewController: UIViewController {
       }
       self.history.text = self.brain.displayHistory()
       userIsInTheMiddleOfTypingANumber = false
+      
+      let string = self.brain.displayHistory()
+      if !string!.isEmpty {
+        displayHistoryWithEqual(true)
+      }
     }
   }
   

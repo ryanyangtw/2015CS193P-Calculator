@@ -66,7 +66,7 @@ class CalculatorBrain
     learnOp(Op.UnaryOperation("Cos", cos))
     //learnOp(Op.CancelOperation("C"))
     learnOp(Op.NullaryOperation("π") { M_PI } )
-    learnOp(Op.UnaryOperation("±") { -1 * $0 } )
+    learnOp(Op.UnaryOperation("±") { -1 * $0 } )  // -$0
     
   }
   
