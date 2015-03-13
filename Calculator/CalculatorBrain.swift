@@ -16,6 +16,7 @@ class CalculatorBrain
     case Operand(Double)
     case UnaryOperation(String, Double -> Double)
     case BinaryOperation(String, (Double, Double) -> Double)
+    case CancelOperation(String)
     
     // Implement Printable protocol for printing the readable enum variable
     var description: String {
@@ -27,6 +28,8 @@ class CalculatorBrain
           return symbol
         case .BinaryOperation(let symbol, _):
           return symbol
+        case .CancelOperation(let operation):
+          return operation
         }
       }
     }
@@ -61,6 +64,7 @@ class CalculatorBrain
     learnOp(Op.UnaryOperation("√", sqrt))
     learnOp(Op.UnaryOperation("Sin", sin))
     learnOp(Op.UnaryOperation("Cos", cos))
+    learnOp(Op.CancelOperation("C"))
     //learnOp(Op.UnaryOperation("π") { $0 * M_PI } )
     
   }
@@ -89,8 +93,11 @@ class CalculatorBrain
             return (operation(operand1, operand2), op2Evaluation.remainingOps)
           }
         }
+      case .CancelOperation(let operation):
+        self.opStack.removeAll()
+        return (nil, [])
         
-        
+    
       }
     }
     
