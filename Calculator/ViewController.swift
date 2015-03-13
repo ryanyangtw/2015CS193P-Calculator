@@ -28,32 +28,23 @@ class ViewController: UIViewController {
 
     if userIsInTheMiddleOfTypingANumber {
       
-      println("In userIsInTheMiddleOfTypingANumber")
-      if digit == "." {
-        if self.display.text!.rangeOfString(".") == nil {
-          self.display.text = self.display.text! + digit
-        }
-      } else if digit == "π" {
-        enter()
-        self.display.text = "\(M_PI)"
-        enter()
+      if (digit == ".") && (self.display.text!.rangeOfString(".") != nil) { return }
+      if (digit == "0") && (self.display.text == "0") { return }
+      if (digit != ".") && (self.display.text == "0") {
+        self.display.text = digit
       } else {
-        self.display.text = self.display.text! + digit
+        self.display.text = display.text! + digit
       }
       
     } else {
       
-      userIsInTheMiddleOfTypingANumber = true
-      
       if digit == "." {
         self.display.text = "0."
-      } else if digit == "π" {
-        self.display.text = "\(M_PI)"
-        // userIsInTheMiddleOfTypingANumber will be modified to false in the enter()
-        enter()
       } else {
         self.display.text = digit
       }
+      
+      userIsInTheMiddleOfTypingANumber = true
     
       
     }
@@ -70,7 +61,6 @@ class ViewController: UIViewController {
     if let operation = sender.currentTitle {
       if let result = brain.performOperation(operation) {
         displayValue = result
-        updateHisroty()
       } else {
         // error
         displayValue = 0
@@ -85,12 +75,17 @@ class ViewController: UIViewController {
     userIsInTheMiddleOfTypingANumber = false
     if let result = brain.pushOperand(displayValue) {
       displayValue = result
-      updateHisroty()
     } else {
       // error
       displayValue = 0
     }
   }
+  
+  @IBAction func clear() {
+    self.brain = CalculatorBrain()
+    self.displayValue = 0
+  }
+  
   
   // Computed property
   var displayValue: Double {
@@ -100,14 +95,11 @@ class ViewController: UIViewController {
     set {
       // newValue means set value
       self.display.text = "\(newValue)"
+      self.history.text = self.brain.displayHistory()
       userIsInTheMiddleOfTypingANumber = false
     }
   }
   
-  
-  func updateHisroty() {
-    self.history.text = self.brain.displayHistory()
-  }
   
   
 
