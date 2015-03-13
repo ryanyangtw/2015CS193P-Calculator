@@ -16,7 +16,7 @@ class CalculatorBrain
     case Operand(Double)
     case UnaryOperation(String, Double -> Double)
     case BinaryOperation(String, (Double, Double) -> Double)
-    case CancelOperation(String)
+    case NullaryOperation(String, () -> Double)
     
     // Implement Printable protocol for printing the readable enum variable
     var description: String {
@@ -28,8 +28,8 @@ class CalculatorBrain
           return symbol
         case .BinaryOperation(let symbol, _):
           return symbol
-        case .CancelOperation(let operation):
-          return operation
+        case .NullaryOperation(let symbol, _):
+          return symbol
         }
       }
     }
@@ -64,8 +64,8 @@ class CalculatorBrain
     learnOp(Op.UnaryOperation("√", sqrt))
     learnOp(Op.UnaryOperation("Sin", sin))
     learnOp(Op.UnaryOperation("Cos", cos))
-    learnOp(Op.CancelOperation("C"))
-    //learnOp(Op.UnaryOperation("π") { $0 * M_PI } )
+    //learnOp(Op.CancelOperation("C"))
+    learnOp(Op.NullaryOperation("π") { M_PI } )
     
   }
   
@@ -93,12 +93,10 @@ class CalculatorBrain
             return (operation(operand1, operand2), op2Evaluation.remainingOps)
           }
         }
-      case .CancelOperation(let operation):
-        self.opStack.removeAll()
-        return (nil, [])
-        
-    
+      case .NullaryOperation(_, let operation):
+        return (operation(), remainingOps)
       }
+      
     }
     
     return (nil, ops)
@@ -188,17 +186,7 @@ class CalculatorBrain
   }
   
   func displayHistory() -> String? {
-    
-    var str = ""
-    for item in self.opStack {
-      if "\(item)" == "3.14159265358979" {
-        str += "π "
-        continue
-      }
-      str += "\(item) "
-    }
-    
-    return str
+    return " ".join(self.opStack.map{ "\($0)" })
   }
   
 }
