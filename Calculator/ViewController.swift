@@ -48,6 +48,8 @@ class ViewController: UIViewController {
     
       
     }
+    
+    displayEqual(false)
   }
 
   
@@ -66,19 +68,23 @@ class ViewController: UIViewController {
         displayValue = 0
       }
     }
-    
+
+    displayEqual(true)
   }
 
   
   
   @IBAction func enter() {
     userIsInTheMiddleOfTypingANumber = false
+    
     if let result = brain.pushOperand(displayValue!) {
       displayValue = result
     } else {
       // error
       displayValue = nil
     }
+    
+    displayEqual(true)
   }
   
   @IBAction func clear() {
@@ -101,6 +107,14 @@ class ViewController: UIViewController {
       //self.displayValue = NSNumberFormatter().numberFromString(dropLast(str))!.doubleValue
     }
     
+  }
+  
+  func displayEqual(shouldDisplay: Bool) {
+    if shouldDisplay {
+      self.history.text = self.history.text! + " ="
+    } else {
+      self.history.text = self.brain.displayHistory()
+    }
   }
   
   
