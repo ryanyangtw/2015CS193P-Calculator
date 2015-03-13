@@ -48,6 +48,8 @@ class ViewController: UIViewController {
     
       
     }
+    
+    displayEqual(false)
   }
 
   
@@ -55,6 +57,11 @@ class ViewController: UIViewController {
   @IBAction func operate(sender: UIButton) {
     
     if userIsInTheMiddleOfTypingANumber {
+      if (sender.currentTitle == "±") {
+        //self.display.text = "-" + self.display.text!
+        signReverse()
+        return
+      }
       enter()
     }
     
@@ -66,39 +73,93 @@ class ViewController: UIViewController {
         displayValue = 0
       }
     }
-    
+
+    displayEqual(true)
   }
 
   
   
   @IBAction func enter() {
     userIsInTheMiddleOfTypingANumber = false
-    if let result = brain.pushOperand(displayValue) {
+    
+    if let result = brain.pushOperand(displayValue!) {
       displayValue = result
     } else {
       // error
-      displayValue = 0
+      displayValue = nil
     }
+    
+    displayEqual(true)
   }
   
   @IBAction func clear() {
     self.brain = CalculatorBrain()
-    self.displayValue = 0
+    self.displayValue = nil
+    self.history.text = ""
   }
   
   
+  @IBAction func undo() {
+    
+    let str = self.display.text!
+    
+    if (str == "0") {
+      return
+    } else if (countElements(str) == 1) {
+      self.display.text = "0"
+    } else {
+      self.display.text = dropLast(str)
+      //self.displayValue = NSNumberFormatter().numberFromString(dropLast(str))!.doubleValue
+    }
+    
+  }
+  
+  func displayEqual(shouldDisplay: Bool) {
+    if shouldDisplay {
+      self.history.text = self.history.text! + " ="
+    } else {
+      self.history.text = self.brain.displayHistory()
+    }
+  }
+  
+  func signReverse() {
+    if (self.display.text!.hasPrefix("-")) {
+      self.display.text = dropFirst(self.display.text!)
+    } else {
+      self.display.text = "-" + self.display.text!
+    }
+  }
+  
+  
+  
   // Computed property
-  var displayValue: Double {
+  var displayValue: Double? {
     get {
       return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
     }
     set {
       // newValue means set value
-      self.display.text = "\(newValue)"
+
+      if (newValue != nil) {
+        self.display.text = "\(newValue!)"
+        /*
+        let checkValue = Double(Int(newValue!))
+        if (checkValue == newValue!) {
+          self.display.text = "\(Int(newValue!))"
+        } else {
+          self.display.text = "\(newValue!)"
+        }
+        */
+
+      } else {
+        self.display.text = "0"
+      }
       self.history.text = self.brain.displayHistory()
       userIsInTheMiddleOfTypingANumber = false
     }
   }
+  
+  
   
   
   
