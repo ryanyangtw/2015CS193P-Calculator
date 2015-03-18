@@ -11,8 +11,12 @@ import UIKit
 class ViewController: UIViewController {
 
   @IBOutlet weak var display: UILabel! // = nil  // implicitly  unwrap optional
+  @IBOutlet weak var history: UILabel!
   
   var userIsInTheMiddleOfTypingANumber = false
+  
+  // connact to model
+  var brain = CalculatorBrain()
   
   
   @IBAction func appendDigit(sender: UIButton) {
@@ -20,74 +24,165 @@ class ViewController: UIViewController {
     let digit = sender.currentTitle!
     //println("digit = \(digit)")
     //println("digit = \(digit!)")
+    
+
     if userIsInTheMiddleOfTypingANumber {
-      self.display.text = self.display.text! + digit
+      
+      if (digit == ".") && (self.display.text!.rangeOfString(".") != nil) { return }
+      if (digit == "0") && ((self.display.text == "0") || (display.text == "-0")) { return }
+      if (digit != ".") && ((self.display.text == "0") || (display.text == "-0")) {
+        
+        if (self.display.text == "0") {
+          self.display.text = digit
+        } else {
+          self.display.text = "-" + digit
+        }
+
+      } else {
+        self.display.text = display.text! + digit
+      }
+      
     } else {
-      self.display.text = digit
+      
+      if digit == "." {
+        self.display.text = "0."
+      } else {
+        self.display.text = digit
+      }
+      
       userIsInTheMiddleOfTypingANumber = true
+      displayHistoryWithEqual(false)
+
     }
   }
 
   
   
   @IBAction func operate(sender: UIButton) {
-    let operation = sender.currentTitle!
     
     if userIsInTheMiddleOfTypingANumber {
+      if (sender.currentTitle == "±") {
+        //self.display.text = "-" + self.display.text!
+        reverseSign()
+        return
+      }
       enter()
     }
     
-    switch operation {
-    // It shows different way to send the closure to anotehr methos
-    case "×": performOperation() {
-      (op1: Double, op2: Double) -> Double in
-        return op1 * op2
+    if let operation = sender.currentTitle {
+      if let result = brain.performOperation(operation) {
+        displayValue = result
+      } else {
+        // error
+        displayValue = nil
+      }
     }
-    case "÷": performOperation() { (op1, op2) in return op2/op1 }
-    case "+": performOperation() { (op1, op2) in op1 + op2 }
-    case "−": performOperation { $1 - $0}
-    case "√": performOperation { sqrt($0) }
-    default : break
-    }
-    
-    
+
+    //displayHistoryWithEqual(true)
   }
-  
-  func performOperation(operation: (Double, Double) -> Double) {
-    if operandStack.count >= 2 {
-      displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
-      enter()
-    }
-  }
-  
-  func performOperation(operation: Double -> Double) {
-    if operandStack.count >= 1 {
-      displayValue = operation(operandStack.removeLast())
-      enter()
-    }
-  }
+
   
   
-  
-  
-  var operandStack = Array<Double>()
   @IBAction func enter() {
     userIsInTheMiddleOfTypingANumber = false
-    operandStack.append(displayValue)
-    println("operand = \(operandStack)")
+    
+    if let result = brain.pushOperand(displayValue!) {
+      displayValue = result
+    } else {
+      // error
+      displayValue = nil
+    }
+    
+    //displayHistoryWithEqual(true)
   }
   
+  @IBAction func clear() {
+    self.brain = CalculatorBrain()
+    self.displayValue = nil
+    self.history.text = ""
+  }
+  
+  
+  @IBAction func undo() {
+    
+    if userIsInTheMiddleOfTypingANumber {
+      
+      let displayText = self.display.text!
+      
+      if (countElements(displayText) > 1) {
+        if (countElements(displayText) == 2 && self.display.text?.hasPrefix("-") != nil) {
+          self.display.text = "-0"
+        } else {
+          // normal seneria
+          self.display.text = dropLast(displayText)
+        }
+      } else {
+        self.display.text = "0"
+      }
+    
+    
+    }
+  }
+  
+  func displayHistoryWithEqual(shouldDisplay: Bool) {
+    if shouldDisplay {
+      self.history.text = self.history.text! + " ="
+    } else {
+      self.history.text = self.brain.displayHistory()
+    }
+  }
+  
+  func reverseSign() {
+    let displayText = self.display.text!
+    if (displayText.hasPrefix("-")) {
+      self.display.text = dropFirst(displayText)
+    } else {
+      self.display.text = "-" + displayText
+    }
+  }
+  
+  
+  
   // Computed property
-  var displayValue: Double {
+  var displayValue: Double? {
     get {
-      return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+      if let displayText = display.text {
+        if let displayNumber = NSNumberFormatter().numberFromString(displayText) {
+          return displayNumber.doubleValue
+        }
+      }
+      return nil
+      //return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
     }
     set {
       // newValue means set value
-      self.display.text = "\(newValue)"
+
+      if (newValue != nil) {
+        self.display.text = "\(newValue!)"
+        /*
+        let checkValue = Double(Int(newValue!))
+        if (checkValue == newValue!) {
+          self.display.text = "\(Int(newValue!))"
+        } else {
+          self.display.text = "\(newValue!)"
+        }
+        */
+
+      } else {
+        self.display.text = "0"
+      }
+      self.history.text = self.brain.displayHistory()
       userIsInTheMiddleOfTypingANumber = false
+      
+      let string = self.brain.displayHistory()
+      if !string!.isEmpty {
+        displayHistoryWithEqual(true)
+      }
     }
   }
+  
+  
+  
   
   
 
