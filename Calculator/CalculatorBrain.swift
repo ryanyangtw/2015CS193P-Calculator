@@ -17,6 +17,7 @@ class CalculatorBrain
     case UnaryOperation(String, Double -> Double)
     case BinaryOperation(String, (Double, Double) -> Double)
     case NullaryOperation(String, () -> Double)
+    case Variable(String)
     
     // Implement Printable protocol for printing the readable enum variable
     var description: String {
@@ -30,6 +31,8 @@ class CalculatorBrain
           return symbol
         case .NullaryOperation(let symbol, _):
           return symbol
+        case .Variable(let symbol):
+          return symbol
         }
       }
     }
@@ -41,6 +44,8 @@ class CalculatorBrain
   
   // var knownOpa = Dictionary<String, Op>()
   private var knownOps = [String:Op]()
+  
+  var variableValues = [String: Double]()
   
   init() {
     
@@ -127,6 +132,8 @@ class CalculatorBrain
         }
       case .NullaryOperation(_, let operation):
         return (operation(), remainingOps)
+      case .Variable(let symbol):
+        return (variableValues[symbol], remainingOps)
       }
       
     }
@@ -210,6 +217,11 @@ class CalculatorBrain
     return evaluate()
   }
   
+  func puehOperand(symbol: String) -> Double? {
+    opStack.append(Op.Variable(symbol))
+    return evaluate()
+  }
+  
   func performOperation(symbol: String) -> Double? {
     if let operation = knownOps[symbol] {
       opStack.append(operation);
@@ -220,5 +232,6 @@ class CalculatorBrain
   func displayHistory() -> String? {
     return " ".join(self.opStack.map{ "\($0)" })
   }
+  
   
 }
