@@ -86,11 +86,13 @@ class ViewController: UIViewController {
   @IBAction func enter() {
     userIsInTheMiddleOfTypingANumber = false
     
-    if let result = brain.pushOperand(displayValue!) {
-      displayValue = result
-    } else {
-      // error
-      displayValue = nil
+    if displayValue != nil {
+      if let result = brain.pushOperand(displayValue!) {
+        displayValue = result
+      } else {
+        // error
+        displayValue = nil
+      }
     }
     
     //displayHistoryWithEqual(true)
@@ -146,13 +148,15 @@ class ViewController: UIViewController {
   // Computed property
   var displayValue: Double? {
     get {
+      /*
       if let displayText = display.text {
         if let displayNumber = NSNumberFormatter().numberFromString(displayText) {
           return displayNumber.doubleValue
         }
       }
       return nil
-      //return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+      */
+      return NSNumberFormatter().numberFromString(display.text!)?.doubleValue
     }
     set {
       // newValue means set value
