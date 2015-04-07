@@ -77,7 +77,7 @@ class ViewController: UIViewController {
         displayValue = nil
       }
     }
-    println("brain.description: \(brain.description)")
+    //println("brain.description: \(brain.description)")
     //displayHistoryWithEqual(true)
   }
 
@@ -94,7 +94,7 @@ class ViewController: UIViewController {
       }
     }
     
-    println("brain.description: \(brain.description)")
+    //println("brain.description: \(brain.description)")
     //displayHistoryWithEqual(true)
   }
   

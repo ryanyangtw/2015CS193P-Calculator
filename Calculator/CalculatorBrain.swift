@@ -49,6 +49,18 @@ class CalculatorBrain
   
   var description: String {
     
+    get {
+      var (result, ops) = ("", opStack)
+      do {
+        var current: String?
+        (current, ops) = description(ops)
+        result = result == "" ? current! : "\(current!), \(result)"
+      } while ops.count > 0
+
+      return result
+    }
+    
+    /*
     var evaluateResult: (result: Double?, remainingOps: [Op], resultString: String?)
     var remainingOps: [Op]
     var str = ""
@@ -71,13 +83,48 @@ class CalculatorBrain
     }
   
     return str
+    */
   }
   
+  private func description(ops: [Op]) -> (result: String?, remainingOps: [Op]) {
+    println("description func")
+    if !ops.isEmpty {
+      var remainingOps = ops
+      let op = remainingOps.removeLast()
+      switch op {
+      case .Operand(let operand):
+        // %g 可以用來消除 .0
+        return (String(format: "%g", operand) , remainingOps)
+      case .NullaryOperation(let symbol, _):
+        return (symbol, remainingOps);
+      case .UnaryOperation(let symbol, _):
+        let operandEvaluation = description(remainingOps)
+        if let operand = operandEvaluation.result {
+          return ("\(symbol)(\(operand))", operandEvaluation.remainingOps)
+        }
+      case .BinaryOperation(let symbol, _):
+        let op1Evaluation = description(remainingOps)
+        if var operand1 = op1Evaluation.result {
+          if remainingOps.count - op1Evaluation.remainingOps.count > 2 {
+            operand1 = "(\(operand1))"
+          }
+          let op2Evaluation = description(op1Evaluation.remainingOps)
+          if let operand2 = op2Evaluation.result {
+            return ("\(operand2) \(symbol) \(operand1)", op2Evaluation.remainingOps)
+          }
+        }
+      case .Variable(let symbol):
+        return (symbol, remainingOps)
+      }
+    }
+    return ("?", ops)
+  }
+  /*
   private func describeOps(ops: [Op]) -> (result: Double?, remainingOps: [Op], resultString: String?) {
     if !ops.isEmpty{
       var remainingOps = ops
       let op = remainingOps.removeLast()
-      
+  
       switch op {
       case .Operand(let operand):
         return (operand, remainingOps, "\(operand)")
@@ -106,7 +153,7 @@ class CalculatorBrain
     }
     return (nil, ops, nil)
   }
-
+  */
 
   init() {
     
