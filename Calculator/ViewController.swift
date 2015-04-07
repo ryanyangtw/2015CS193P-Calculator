@@ -14,9 +14,16 @@ class ViewController: UIViewController {
   @IBOutlet weak var history: UILabel!
   
   var userIsInTheMiddleOfTypingANumber = false
+  //let decimalSeparator = NSNumberFormatter().decimalSeparator!
   
   // connact to model
   var brain = CalculatorBrain()
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    //decimalButton.setTitle(decimalSeparator, forState: UIControlState.Normal)
+    display.text = " "
+  }
   
   
   @IBAction func appendDigit(sender: UIButton) {
@@ -174,7 +181,7 @@ class ViewController: UIViewController {
         */
 
       } else {
-        self.display.text = "0"
+        self.display.text = " "
       }
       
       //self.history.text = self.brain.displayHistory()
@@ -190,9 +197,35 @@ class ViewController: UIViewController {
   }
   
   
-  
-  
-  
 
+  @IBAction func storeVariable(sender: UIButton) {
+    if let variable = last(sender.currentTitle!) {
+
+      if displayValue != nil {
+        brain.variableValues["\(variable)"] = displayValue
+        if let result = brain.evaluate() {
+          displayValue = result
+        } else {
+          displayValue = nil
+        }
+      }
+    }
+    userIsInTheMiddleOfTypingANumber = false
+  }
+
+  
+  
+  @IBAction func pushVariable(sender: UIButton) {
+    if userIsInTheMiddleOfTypingANumber {
+      enter()
+    }
+
+    if let result = brain.pushOperand(sender.currentTitle!) {
+      displayValue = result
+    } else {
+      displayValue = nil
+    }
+    
+  }
 }
 

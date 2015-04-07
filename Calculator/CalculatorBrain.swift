@@ -87,7 +87,6 @@ class CalculatorBrain
   }
   
   private func description(ops: [Op]) -> (result: String?, remainingOps: [Op]) {
-    println("description func")
     if !ops.isEmpty {
       var remainingOps = ops
       let op = remainingOps.removeLast()
@@ -325,7 +324,7 @@ class CalculatorBrain
     return evaluate()
   }
   
-  func puehOperand(symbol: String) -> Double? {
+  func pushOperand(symbol: String) -> Double? {
     opStack.append(Op.Variable(symbol))
     return evaluate()
   }
