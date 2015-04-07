@@ -47,6 +47,67 @@ class CalculatorBrain
   
   var variableValues = [String: Double]()
   
+  var description: String {
+    
+    var evaluateResult: (result: Double?, remainingOps: [Op], resultString: String?)
+    var remainingOps: [Op]
+    var str = ""
+    
+    evaluateResult  = describeOps(opStack)
+    remainingOps = evaluateResult.remainingOps
+    if evaluateResult.resultString != nil {
+      str = evaluateResult.resultString!
+    }
+    
+    
+    while remainingOps.count != 0 {
+      println("remainingOps.count != 0")
+      evaluateResult  = describeOps(remainingOps)
+      remainingOps = evaluateResult.remainingOps
+      if evaluateResult.resultString != nil {
+        str = evaluateResult.resultString! + "," + str
+      }
+    
+    }
+  
+    return str
+  }
+  
+  private func describeOps(ops: [Op]) -> (result: Double?, remainingOps: [Op], resultString: String?) {
+    if !ops.isEmpty{
+      var remainingOps = ops
+      let op = remainingOps.removeLast()
+      
+      switch op {
+      case .Operand(let operand):
+        return (operand, remainingOps, "\(operand)")
+        
+      case .UnaryOperation(let symbol, let operation):
+        let operandEvaluation = describeOps(remainingOps)
+        if let operand = operandEvaluation.result {
+          return (operation(operand), operandEvaluation.remainingOps, "\(symbol)(\(operandEvaluation.resultString!))")
+        }
+      case .BinaryOperation(let symbol, let operation):
+        let op1Evaluation = describeOps(remainingOps)
+        if let operand1 = op1Evaluation.result {
+          let op2Evaluation = describeOps(op1Evaluation.remainingOps)
+          if let operand2 = op2Evaluation.result {
+            return (operation(operand1, operand2), op2Evaluation.remainingOps, "(\(op2Evaluation.resultString!)\(symbol)\(op1Evaluation.resultString!))")
+          } else {
+            return (nil, ops, "(?\(symbol)\(op1Evaluation.resultString!))")
+          }
+        }
+      case .NullaryOperation(let symbol, let operation):
+        return (operation(), remainingOps, "\(symbol)")
+      case .Variable(let symbol):
+        return (variableValues[symbol], remainingOps, "\(symbol)")
+      }
+      
+    }
+    return (nil, ops, nil)
+  }
+
+
   init() {
     
     // this function just can be used in init()

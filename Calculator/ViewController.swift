@@ -77,7 +77,7 @@ class ViewController: UIViewController {
         displayValue = nil
       }
     }
-
+    println("brain.description: \(brain.description)")
     //displayHistoryWithEqual(true)
   }
 
@@ -85,7 +85,6 @@ class ViewController: UIViewController {
   
   @IBAction func enter() {
     userIsInTheMiddleOfTypingANumber = false
-    
     if displayValue != nil {
       if let result = brain.pushOperand(displayValue!) {
         displayValue = result
@@ -95,6 +94,7 @@ class ViewController: UIViewController {
       }
     }
     
+    println("brain.description: \(brain.description)")
     //displayHistoryWithEqual(true)
   }
   
