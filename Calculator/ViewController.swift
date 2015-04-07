@@ -130,7 +130,8 @@ class ViewController: UIViewController {
     if shouldDisplay {
       self.history.text = self.history.text! + " ="
     } else {
-      self.history.text = self.brain.displayHistory()
+      history.text = brain.description != "?" ? brain.description : " "
+      //self.history.text = self.brain.displayHistory()
     }
   }
   
@@ -175,13 +176,16 @@ class ViewController: UIViewController {
       } else {
         self.display.text = "0"
       }
-      self.history.text = self.brain.displayHistory()
+      
+      //self.history.text = self.brain.displayHistory()
       userIsInTheMiddleOfTypingANumber = false
       
-      let string = self.brain.displayHistory()
-      if !string!.isEmpty {
-        displayHistoryWithEqual(true)
-      }
+//      let string = self.brain.displayHistory()
+//      if !string!.isEmpty {
+//        displayHistoryWithEqual(true)
+//      }
+      history.text = brain.description + " ="
+      
     }
   }
   
