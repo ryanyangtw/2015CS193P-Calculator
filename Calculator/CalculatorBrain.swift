@@ -17,6 +17,7 @@ class CalculatorBrain
     case UnaryOperation(String, Double -> Double)
     case BinaryOperation(String, (Double, Double) -> Double)
     case NullaryOperation(String, () -> Double)
+    case Variable(String)
     
     // Implement Printable protocol for printing the readable enum variable
     var description: String {
@@ -30,6 +31,8 @@ class CalculatorBrain
           return symbol
         case .NullaryOperation(let symbol, _):
           return symbol
+        case .Variable(let symbol):
+          return symbol
         }
       }
     }
@@ -42,6 +45,115 @@ class CalculatorBrain
   // var knownOpa = Dictionary<String, Op>()
   private var knownOps = [String:Op]()
   
+  var variableValues = [String: Double]()
+  
+  var description: String {
+    
+    get {
+      var (result, ops) = ("", opStack)
+      do {
+        var current: String?
+        (current, ops) = description(ops)
+        result = result == "" ? current! : "\(current!), \(result)"
+      } while ops.count > 0
+
+      return result
+    }
+    
+    /*
+    var evaluateResult: (result: Double?, remainingOps: [Op], resultString: String?)
+    var remainingOps: [Op]
+    var str = ""
+    
+    evaluateResult  = describeOps(opStack)
+    remainingOps = evaluateResult.remainingOps
+    if evaluateResult.resultString != nil {
+      str = evaluateResult.resultString!
+    }
+    
+    
+    while remainingOps.count != 0 {
+      println("remainingOps.count != 0")
+      evaluateResult  = describeOps(remainingOps)
+      remainingOps = evaluateResult.remainingOps
+      if evaluateResult.resultString != nil {
+        str = evaluateResult.resultString! + "," + str
+      }
+    
+    }
+  
+    return str
+    */
+  }
+  
+  private func description(ops: [Op]) -> (result: String?, remainingOps: [Op]) {
+    if !ops.isEmpty {
+      var remainingOps = ops
+      let op = remainingOps.removeLast()
+      switch op {
+      case .Operand(let operand):
+        // %g 可以用來消除 .0
+        return (String(format: "%g", operand) , remainingOps)
+      case .NullaryOperation(let symbol, _):
+        return (symbol, remainingOps);
+      case .UnaryOperation(let symbol, _):
+        let operandEvaluation = description(remainingOps)
+        if let operand = operandEvaluation.result {
+          return ("\(symbol)(\(operand))", operandEvaluation.remainingOps)
+        }
+      case .BinaryOperation(let symbol, _):
+        let op1Evaluation = description(remainingOps)
+        if var operand1 = op1Evaluation.result {
+          if remainingOps.count - op1Evaluation.remainingOps.count > 2 {
+            operand1 = "(\(operand1))"
+          }
+          let op2Evaluation = description(op1Evaluation.remainingOps)
+          if let operand2 = op2Evaluation.result {
+            return ("\(operand2) \(symbol) \(operand1)", op2Evaluation.remainingOps)
+          }
+        }
+      case .Variable(let symbol):
+        return (symbol, remainingOps)
+      }
+    }
+    return ("?", ops)
+  }
+  /*
+  private func describeOps(ops: [Op]) -> (result: Double?, remainingOps: [Op], resultString: String?) {
+    if !ops.isEmpty{
+      var remainingOps = ops
+      let op = remainingOps.removeLast()
+  
+      switch op {
+      case .Operand(let operand):
+        return (operand, remainingOps, "\(operand)")
+        
+      case .UnaryOperation(let symbol, let operation):
+        let operandEvaluation = describeOps(remainingOps)
+        if let operand = operandEvaluation.result {
+          return (operation(operand), operandEvaluation.remainingOps, "\(symbol)(\(operandEvaluation.resultString!))")
+        }
+      case .BinaryOperation(let symbol, let operation):
+        let op1Evaluation = describeOps(remainingOps)
+        if let operand1 = op1Evaluation.result {
+          let op2Evaluation = describeOps(op1Evaluation.remainingOps)
+          if let operand2 = op2Evaluation.result {
+            return (operation(operand1, operand2), op2Evaluation.remainingOps, "(\(op2Evaluation.resultString!)\(symbol)\(op1Evaluation.resultString!))")
+          } else {
+            return (nil, ops, "(?\(symbol)\(op1Evaluation.resultString!))")
+          }
+        }
+      case .NullaryOperation(let symbol, let operation):
+        return (operation(), remainingOps, "\(symbol)")
+      case .Variable(let symbol):
+        return (variableValues[symbol], remainingOps, "\(symbol)")
+      }
+      
+    }
+    return (nil, ops, nil)
+  }
+  */
+
   init() {
     
     // this function just can be used in init()
@@ -127,6 +239,8 @@ class CalculatorBrain
         }
       case .NullaryOperation(_, let operation):
         return (operation(), remainingOps)
+      case .Variable(let symbol):
+        return (variableValues[symbol], remainingOps)
       }
       
     }
@@ -210,6 +324,11 @@ class CalculatorBrain
     return evaluate()
   }
   
+  func pushOperand(symbol: String) -> Double? {
+    opStack.append(Op.Variable(symbol))
+    return evaluate()
+  }
+  
   func performOperation(symbol: String) -> Double? {
     if let operation = knownOps[symbol] {
       opStack.append(operation);
@@ -220,5 +339,6 @@ class CalculatorBrain
   func displayHistory() -> String? {
     return " ".join(self.opStack.map{ "\($0)" })
   }
+  
   
 }

@@ -14,9 +14,16 @@ class ViewController: UIViewController {
   @IBOutlet weak var history: UILabel!
   
   var userIsInTheMiddleOfTypingANumber = false
+  //let decimalSeparator = NSNumberFormatter().decimalSeparator!
   
   // connact to model
   var brain = CalculatorBrain()
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    //decimalButton.setTitle(decimalSeparator, forState: UIControlState.Normal)
+    display.text = " "
+  }
   
   
   @IBAction func appendDigit(sender: UIButton) {
@@ -77,7 +84,7 @@ class ViewController: UIViewController {
         displayValue = nil
       }
     }
-
+    //println("brain.description: \(brain.description)")
     //displayHistoryWithEqual(true)
   }
 
@@ -85,14 +92,16 @@ class ViewController: UIViewController {
   
   @IBAction func enter() {
     userIsInTheMiddleOfTypingANumber = false
-    
-    if let result = brain.pushOperand(displayValue!) {
-      displayValue = result
-    } else {
-      // error
-      displayValue = nil
+    if displayValue != nil {
+      if let result = brain.pushOperand(displayValue!) {
+        displayValue = result
+      } else {
+        // error
+        displayValue = nil
+      }
     }
     
+    //println("brain.description: \(brain.description)")
     //displayHistoryWithEqual(true)
   }
   
@@ -128,7 +137,8 @@ class ViewController: UIViewController {
     if shouldDisplay {
       self.history.text = self.history.text! + " ="
     } else {
-      self.history.text = self.brain.displayHistory()
+      history.text = brain.description != "?" ? brain.description : " "
+      //self.history.text = self.brain.displayHistory()
     }
   }
   
@@ -146,13 +156,15 @@ class ViewController: UIViewController {
   // Computed property
   var displayValue: Double? {
     get {
+      /*
       if let displayText = display.text {
         if let displayNumber = NSNumberFormatter().numberFromString(displayText) {
           return displayNumber.doubleValue
         }
       }
       return nil
-      //return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+      */
+      return NSNumberFormatter().numberFromString(display.text!)?.doubleValue
     }
     set {
       // newValue means set value
@@ -169,22 +181,51 @@ class ViewController: UIViewController {
         */
 
       } else {
-        self.display.text = "0"
+        self.display.text = " "
       }
-      self.history.text = self.brain.displayHistory()
+      
+      //self.history.text = self.brain.displayHistory()
       userIsInTheMiddleOfTypingANumber = false
       
-      let string = self.brain.displayHistory()
-      if !string!.isEmpty {
-        displayHistoryWithEqual(true)
-      }
+//      let string = self.brain.displayHistory()
+//      if !string!.isEmpty {
+//        displayHistoryWithEqual(true)
+//      }
+      history.text = brain.description + " ="
+      
     }
   }
   
   
-  
-  
-  
 
+  @IBAction func storeVariable(sender: UIButton) {
+    if let variable = last(sender.currentTitle!) {
+
+      if displayValue != nil {
+        brain.variableValues["\(variable)"] = displayValue
+        if let result = brain.evaluate() {
+          displayValue = result
+        } else {
+          displayValue = nil
+        }
+      }
+    }
+    userIsInTheMiddleOfTypingANumber = false
+  }
+
+  
+  
+  @IBAction func pushVariable(sender: UIButton) {
+    if userIsInTheMiddleOfTypingANumber {
+      enter()
+    }
+
+    if let result = brain.pushOperand(sender.currentTitle!) {
+      displayValue = result
+    } else {
+      displayValue = nil
+    }
+    
+  }
 }
 
